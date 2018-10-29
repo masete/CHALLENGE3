@@ -24,9 +24,7 @@ class Database:
             CREATE TABLE IF NOT EXISTS "products" (                    
                     products_id SERIAL PRIMARY KEY,
                     product_name VARCHAR(20) NOT NULL,
-                    product_price INTEGER NOT NULL,
-                    products VARCHAR(100) NOT NULL,
-                    category VARCHAR(25)                                   
+                    product_price INTEGER NOT NULL                                  
                     
                 )
             """,
@@ -54,5 +52,23 @@ class Database:
                 self.cursor.execute(command)
         except(Exception, psycopg2.DatabaseError) as error:
             raise error
+
+    def insert_new_product(self, user_id, added_product):
+        """
+           Method for adding a new product to the database
+        """
+        # self.cursor.execute("SELECT user_name FROM users WHERE user_id= %s", [user_id])
+        name = self.cursor.fetchone()
+        # print(name[0])
+        # time_value = time.time()
+        # date_time = datetime.datetime.fromtimestamp(time_value).strftime('%Y-%m-%d %H:%M:%S')
+        self.cursor.execute("SELECT * FROM products WHERE products = %s", [added_product])
+        check_product = self.cursor.fetchone()
+        if check_product:
+            return "product exits "
+        
+        insert_product = "INSERT INTO products(product_id, product_name, product_price ) VALUES('"+product_id+"', '"+product_name[0]+"', '"+added_product+"')"
+        self.cursor.execute(insert_product)
+        return "product succcssfully created"
 
    

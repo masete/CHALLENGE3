@@ -1,2 +1,5 @@
 /ourenv
 /API/models/__pycache__
+/API/models/__init__.pyc
+/API/__init__.pyc
+/API/models/storedb.pyc
