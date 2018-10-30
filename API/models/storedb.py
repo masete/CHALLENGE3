@@ -12,7 +12,7 @@ class Database:
     def __init__(self):
         self.commands = (
             """
-            CREATE TABLE IF NOT EXISTS "users" (
+            CREATE TABLE IF NOT EXISTS users (
                     user_id SERIAL PRIMARY KEY,
                     user_name VARCHAR(50) NOT NULL,
                     email VARCHAR(50) NOT NULL,
@@ -21,7 +21,7 @@ class Database:
                 )
             """,
             """
-            CREATE TABLE IF NOT EXISTS "products" (                    
+            CREATE TABLE IF NOT EXISTS products (                    
                     products_id SERIAL PRIMARY KEY,
                     product_name VARCHAR(20) NOT NULL,
                     product_price INTEGER NOT NULL                                  
@@ -29,41 +29,59 @@ class Database:
                 )
             """,
             """
-            CREATE TABLE IF NOT EXISTS "sales" (
-                    sales_id SERIAL PRIMARY KEY,
-                    products_id INT REFERENCES products(products_id),
-                    user_id INT REFERENCES users(user_id),
-                    sale VARCHAR(100)
+            CREATE TABLE IF NOT EXISTS sales (
+                    sale_id SERIAL PRIMARY KEY,
+                    sale_price INTEGER NOT NULL,
+                    sale_quantity INTEGER NOT NULL
                 )
             """,)
 
         try:
-            if(os.getenv("FLASK_ENV")) == "Production":
-                self.connection = psycopg2.connect(os.getenv("DATABASE_URL"))
-            else:
-                self.connection = psycopg2.connect(dbname='store',
-                                                   user='postgres',
-                                                   password='masete',
-                                                   host='localhost',
-                                                   port='5432')
+
+            # if(os.getenv("FLASK_ENV")) == "Production":
+            #     self.connection = psycopg2.connect(os.getenv("DATABASE_URL"))
+            # else:
+            self.connection = psycopg2.connect(dbname='store',
+                                                user='postgres',
+                                                password='masete',
+                                                host='localhost',
+                                                    port='5432')
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
-            for command in commands:
+            print(self.cursor)
+            for command in self.commands:
                 self.cursor.execute(command)
         except(Exception, psycopg2.DatabaseError) as error:
             raise error
 
-    def insert_new_product(self, user_id, added_product):
-        """
-           Method for adding a new product to the database
-        """
-        self.cursor.execute("SELECT * FROM products WHERE products = %s", [added_product])
-        check_product = self.cursor.fetchone()
-        if check_product:
-            return "product exits "
-        
-        insert_product = "INSERT INTO products(product_id, product_name, product_price ) VALUES('"+product_id+"', '"+product_name[0]+"', '"+added_product+"')"
+    def insert_new_product(self,product_name, product_price):
+
+        insert_product = "INSERT INTO products(product_name, product_price ) VALUES('{}','{}')".format(product_name,product_price)
         self.cursor.execute(insert_product)
         return "product succcssfully created"
+
+    def get_all_products(self):
+
+        get_product = "SELECT * FROM products"
+        self.cursor.execute(get_product)
+        return self.cursor.fetchall()
+    
+    def get_one_product(self):
+
+        get_single_product = "SELECT * FROM products"
+        self.cursor.execute(get_single_product)
+        return self.cursor.fetchone()
+
+    def insert_new_sale(self,sale_quantity, sale_price):
+
+        insert_sale = "INSERT INTO sales(sale_quantity, sale_price ) VALUES('{}','{}')".format(sale_quantity,sale_price)
+        self.cursor.execute(insert_sale)
+        return "product succcssfully created"
+
+    def get_all_sales(self):
+
+        get_sale = "SELECT * FROM sales"
+        self.cursor.execute(get_sale)
+        return self.cursor.fetchall()
 
    
