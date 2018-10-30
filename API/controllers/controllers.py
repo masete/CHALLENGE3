@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, request
 from API.models.storedb import Database
 from API.controllers.models import Product, Sale
+from flask_jwt_extended import create_access_token, JWTManager
 
 
 db = Database()
@@ -9,12 +10,43 @@ db = Database()
 def start_app():
     """starting  the flask instance"""
     app = Flask(__name__)
+    app.config['JWT_SECRET_KEY']='jwt-secret-string'
+    jwt= JWTManager(app)
 
 
     @app.route("/", strict_slashes=False)
     def index():
         return jsonify({"message":"No products are available yet."})
         
+
+    @app.route("/api/auth/signup/", methods=["POST"], strict_slashes=False)
+    def signup():
+
+        data = request.get_json()
+        user_name = data.get('user_name')
+        email = data.get('email')
+        password = data.get('password')
+
+        add_user =db.signup(user_name,email,password)
+        return jsonify({"user":add_user})
+
+
+    @app.route("/api/auth/login/", methods=["POST"], strict_slashes=False)
+    def login():
+
+         
+        data = request.get_json()
+        user_name = data.get('user_name')
+        password  = data.get('password')
+
+        access_token = create_access_token(identity=user_name)
+        return {'access_token':access_token}, 200
+
+
+ 
+
+
+             
     @app.route("/api/v1/products/", methods=["POST"], strict_slashes=False)
     def post_a_product():
         """params: none, post a product by postman"""
@@ -53,9 +85,16 @@ def start_app():
     def get_all_prducts():
         products = db.get_all_products()
         return jsonify({"products":products})
+
+    @app.route("/api/v1/products/", methods=["PUT"], strict_slashes=False)
+    def modify_product():
+        pass
+
+    @app.route("/api/v1/products/", methods=["DELETE"], strict_slashes=False)
+    def delete_product():
+        pass
         
-
-
+        
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
     def get_single_product(product_id):
         single_product = db.get_one_product(product_id)
@@ -102,7 +141,6 @@ def start_app():
     @app.route("/api/v1/sales/<int:sale_id>", methods=['GET'], strict_slashes=False)
     def get_single_sale(sale_id):
         single_sale = db.get_one_sale(sale_id)
-        return jsonify({"single_
-        sale":single_sale})
+        return jsonify({"single_sale":single_sale})
 
     return app
