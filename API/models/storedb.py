@@ -10,7 +10,7 @@ class Database:
        Class containing our database queries..
     """
     def __init__(self):
-        commands = (
+        self.commands = (
             """
             CREATE TABLE IF NOT EXISTS "users" (
                     user_id SERIAL PRIMARY KEY,
@@ -57,11 +57,6 @@ class Database:
         """
            Method for adding a new product to the database
         """
-        # self.cursor.execute("SELECT user_name FROM users WHERE user_id= %s", [user_id])
-        name = self.cursor.fetchone()
-        # print(name[0])
-        # time_value = time.time()
-        # date_time = datetime.datetime.fromtimestamp(time_value).strftime('%Y-%m-%d %H:%M:%S')
         self.cursor.execute("SELECT * FROM products WHERE products = %s", [added_product])
         check_product = self.cursor.fetchone()
         if check_product:

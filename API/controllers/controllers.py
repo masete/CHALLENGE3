@@ -37,7 +37,7 @@ def start_app():
 
             if new_product == "product exits ":
                 return jsonify({'message': "product was not added"}), 401
-            return jsonify({'message': new_prooduct}), 201
+            return jsonify({'message': new_prooduct }), 201
 
         except:
             return jsonify({"message":"Invalid input"}), 400
