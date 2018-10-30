@@ -1,7 +1,6 @@
 """
    database setup for supporting endpoints functionality
 """
-import os
 import psycopg2
 
 
@@ -36,23 +35,16 @@ class Database:
                 )
             """,)
 
-        try:
-
-            # if(os.getenv("FLASK_ENV")) == "Production":
-            #     self.connection = psycopg2.connect(os.getenv("DATABASE_URL"))
-            # else:
-            self.connection = psycopg2.connect(dbname='store',
-                                                user='postgres',
-                                                password='masete',
-                                                host='localhost',
-                                                    port='5432')
-            self.connection.autocommit = True
-            self.cursor = self.connection.cursor()
-            print(self.cursor)
-            for command in self.commands:
-                self.cursor.execute(command)
-        except(Exception, psycopg2.DatabaseError) as error:
-            raise error
+        self.connection = psycopg2.connect(dbname='store',
+                                            user='postgres',
+                                            password='masete',
+                                            host='localhost',
+                                                port='5432')
+        self.connection.autocommit = True
+        self.cursor = self.connection.cursor()
+        print(self.cursor)
+        for command in self.commands:
+            self.cursor.execute(command)
 
     def insert_new_product(self,product_name, product_price):
 
@@ -66,9 +58,9 @@ class Database:
         self.cursor.execute(get_product)
         return self.cursor.fetchall()
     
-    def get_one_product(self):
+    def get_one_product(self, product_id):
 
-        get_single_product = "SELECT * FROM products"
+        get_single_product = "SELECT * FROM products WHERE products_id = {}".format(product_id)
         self.cursor.execute(get_single_product)
         return self.cursor.fetchone()
 
@@ -83,5 +75,11 @@ class Database:
         get_sale = "SELECT * FROM sales"
         self.cursor.execute(get_sale)
         return self.cursor.fetchall()
+
+    def get_one_sale(self, sale_id):
+
+        get_single_sale = "SELECT * FROM sales WHERE sale_id = {}".format(sale_id)
+        self.cursor.execute(get_single_sale)
+        return self.cursor.fetchone()
 
    

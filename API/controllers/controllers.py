@@ -58,18 +58,8 @@ def start_app():
 
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
     def get_single_product(product_id):
-        """params: product id
-           for getting a product by id
-        """
-        single = []
-        for pdtsList in pdtsLists:
-            if pdtsList.product_id == product_id:
-                req_dict = (pdtsList.myproducts())
-                single.append(req_dict)
-            if not single:
-                return jsonify({"Products": "product does not exist"})
-        else:
-            return jsonify(single), 200
+        single_product = db.get_one_product(product_id)
+        return jsonify({"single_product":single_product})
 
 
 
@@ -109,19 +99,9 @@ def start_app():
         sales = db.get_all_sales()
         return jsonify({"sales":sales})
 
-    @app.route("/api/v1/sales/<int:sales_id>", methods=['GET'], strict_slashes=False)
-    def get_single_sale(sales_id):
-        """params: None
-           routes for getting a single sale
-        """
-        response = []
-        for saleList in salesLists:
-            if saleList.sales_id == sales_id:
-                req_dict = (saleList.mysales())
-                response.append(req_dict)
-        if not response:
-            return jsonify({'Sales': 'sales not found'}), 200
-        else:
-            return jsonify(response), 200
+    @app.route("/api/v1/sales/<int:sale_id>", methods=['GET'], strict_slashes=False)
+    def get_single_sale(sale_id):
+        single_sale = db.get_one_sale(sale_id)
+        return jsonify({"single_sale":single_sale})
 
     return app
