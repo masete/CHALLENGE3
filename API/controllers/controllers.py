@@ -102,6 +102,7 @@ def start_app():
     @app.route("/api/v1/sales/<int:sale_id>", methods=['GET'], strict_slashes=False)
     def get_single_sale(sale_id):
         single_sale = db.get_one_sale(sale_id)
-        return jsonify({"single_sale":single_sale})
+        return jsonify({"single_
+        sale":single_sale})
 
     return app
