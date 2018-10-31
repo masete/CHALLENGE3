@@ -86,13 +86,24 @@ def start_app():
         products = db.get_all_products()
         return jsonify({"products":products})
 
-    @app.route("/api/v1/products/", methods=["PUT"], strict_slashes=False)
-    def modify_product():
-        pass
+    @app.route("/api/products/<int:products_id>", methods=["PUT"], strict_slashes=False)
+    def modify_product(products_id):
+        data = request.get_json()
+        product_name = data.get('product_name')
+        product_price = data.get('product_price')
 
-    @app.route("/api/v1/products/", methods=["DELETE"], strict_slashes=False)
+        modify = db.modify_product(products_id, product_name,product_price)
+        return jsonify({"product modified successfully": modify.__dict__})
+
+    @app.route("/api/products/<int:products_id>", methods=["DELETE"], strict_slashes=False)
     def delete_product():
-        pass
+
+        product = db.get_product_by_id(int(products_id))
+        if not product:
+            return jsonify({"response": "There is no such product with that Id"}), 404
+        db.delete_product(int(product_id))
+        return jsonify({"message": "Product has been deleted successfully"})
+
         
         
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)

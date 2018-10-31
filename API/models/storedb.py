@@ -58,6 +58,19 @@ class Database:
         self.cursor.execute(login_user)
         return self.cursor.fetchone()
 
+    def get_product_by_name(self, product_name):
+
+        productbyname = "SELECT * FROM public.products WHERE product_name = {}".format(product_name)
+        self.cursor.execute(productbyname)
+        return self.cursor.fetchone()
+    
+    def get_product_by_id(self, product_id):
+
+        productbyid = "SELECT * FROM public.products WHERE product_name = {}".format(product_id)
+        return self.cursor.execute(productbyid)
+        return self.cursor.fetchone()
+
+
     def insert_new_product(self,product_name, product_price):
 
         insert_product = "INSERT INTO products(product_name, product_price ) VALUES('{}','{}')".format(product_name,product_price)
@@ -75,6 +88,14 @@ class Database:
         get_single_product = "SELECT * FROM products WHERE products_id = {}".format(product_id)
         self.cursor.execute(get_single_product)
         return self.cursor.fetchone()
+
+    def modify_product(self,products_id,product_name,product_price):
+        modify = "UPDATE products SET products_id = {},product_name = {}, product_price = {}".format(products_id,product_name,product_price)
+        self.cursor.execute(modify)
+
+    def delete_product(self,product_id):
+        delete = "SELECT FROM products WHERE products_id = {}".format(products_id)
+        self.cursor.execute(delete)
 
     def insert_new_sale(self,sale_quantity, sale_price):
 
