@@ -4,3 +4,10 @@
 /API/__init__.pyc
 /API/models/storedb.pyc
 /API/controllers/controllers.pyc
+/API/controllers/models.pyc
+/API/controllers/__init__.pyc
+/test_views.pyc
+/__pycache__
+/API/validation_schema.pyc
+/__init__.pyc
+/API/controllers/__init__.pyc

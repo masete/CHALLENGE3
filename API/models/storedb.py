@@ -2,7 +2,7 @@
    database setup for supporting endpoints functionality
 """
 import psycopg2
-
+from psycopg2.extras import RealDictCursor
 
 class Database:
     """
@@ -41,7 +41,7 @@ class Database:
                                             host='localhost',
                                                 port='5432')
         self.connection.autocommit = True
-        self.cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor(cursor_factory = RealDictCursor)
         print(self.cursor)
         for command in self.commands:
             self.cursor.execute(command)
@@ -60,14 +60,14 @@ class Database:
 
     def get_product_by_name(self, product_name):
 
-        productbyname = "SELECT * FROM public.products WHERE product_name = {}".format(product_name)
+        productbyname = "SELECT * FROM products WHERE product_name = {}".format(str(product_name))
         self.cursor.execute(productbyname)
         return self.cursor.fetchone()
     
     def get_product_by_id(self, product_id):
 
-        productbyid = "SELECT * FROM public.products WHERE product_name = {}".format(product_id)
-        return self.cursor.execute(productbyid)
+        productbyid = "SELECT * FROM products WHERE products_id = {}".format(product_id)
+        self.cursor.execute(productbyid)
         return self.cursor.fetchone()
 
 
@@ -82,6 +82,9 @@ class Database:
         get_product = "SELECT * FROM products"
         self.cursor.execute(get_product)
         return self.cursor.fetchall()
+
+        get_product = product('{}','{}','{}')
+
     
     def get_one_product(self, product_id):
 
@@ -90,11 +93,11 @@ class Database:
         return self.cursor.fetchone()
 
     def modify_product(self,products_id,product_name,product_price):
-        modify = "UPDATE products SET products_id = {},product_name = {}, product_price = {}".format(products_id,product_name,product_price)
+        modify = "UPDATE products SET product_name = '{}', product_price = '{}' WHERE products_id = {}".format(product_name,product_price,products_id)
         self.cursor.execute(modify)
 
-    def delete_product(self,product_id):
-        delete = "SELECT FROM products WHERE products_id = {}".format(products_id)
+    def delete_product(self,products_id):
+        delete = "DELETE FROM products WHERE products_id = {}".format(int(products_id))
         self.cursor.execute(delete)
 
     def insert_new_sale(self,sale_quantity, sale_price):

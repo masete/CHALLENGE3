@@ -1,16 +1,23 @@
 """my controllers holding the HTTP requests"""
 from flask import Flask, jsonify, request
+from cerberus import Validator
 from API.models.storedb import Database
 from API.controllers.models import Product, Sale
-from flask_jwt_extended import create_access_token, JWTManager
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
+from API.validation_schema import signup_schema, login_schema,post_product_schema,post_sale_schema,modify_product_schema,delete_product_schema,get_sale_schema
 
 
 db = Database()
 
+val = Validator()
+
 def start_app():
     """starting  the flask instance"""
     app = Flask(__name__)
-    app.config['JWT_SECRET_KEY']='jwt-secret-string'
+    app.config['JWT_SECRET_KEY']='masete'
     jwt= JWTManager(app)
 
 
@@ -26,59 +33,54 @@ def start_app():
         user_name = data.get('user_name')
         email = data.get('email')
         password = data.get('password')
+        print(data)
+
+        validate = val.validate(data, signup_schema)
+        print(val.errors)
+        if not validate:
+            return jsonify({'error': val.errors}), 400
 
         add_user =db.signup(user_name,email,password)
-        return jsonify({"user":add_user})
+        return jsonify({"user":add_user}), 201
 
 
     @app.route("/api/auth/login/", methods=["POST"], strict_slashes=False)
-    def login():
+    def login():  
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
 
-         
         data = request.get_json()
         user_name = data.get('user_name')
         password  = data.get('password')
 
+        validate = val.validate(data, login_schema)
+        if not validate:
+            return jsonify({'error': val.errors}), 400
+
+
+        # Identity can be any data that is json serializable
         access_token = create_access_token(identity=user_name)
-        return {'access_token':access_token}, 200
+        return jsonify(access_token=access_token), 200
 
-
- 
-
-
-             
+    
     @app.route("/api/v1/products/", methods=["POST"], strict_slashes=False)
     def post_a_product():
         """params: none, post a product by postman"""
-        try:
         
-            feedback = request.get_json()
-            product_name = feedback['product_name']
-            product_price = feedback['product_price']
-            new_product = Product(product_name, product_price)
+    
+        data = request.get_json()
+        product_name = data['product_name']
+        product_price = data['product_price']
+        new_product = Product(product_name, product_price)
 
-            # if product_name == " ":
-            #     return jsonify({"message":"Product field can not have space"}), 400
-            # if product_name == "":
-            #     return jsonify({"message":"Product field can not be empty"}), 400
-            # if product_price == "":
-            #     return jsonify({"message":"Product price field cant be empty"}), 400
-            # if product_price == " ":
-            #     return jsonify({"message":"Product price field cant be passed empty string"}), 400
-            # if not isinstance(product_name, str):
-            #     return jsonify({"message":"Product name field can not be an int"}), 400    
-            # if not isinstance(product_price, int):
-            #     return jsonify({"message":"Product price field can not be a string"}), 400
-            #  if new_product == "product exits ":
-            #     return jsonify({'message': "product was not added"}), 401
-            # return jsonify({'message': new_prooduct }), 201
-            
-            db.insert_new_product(product_name, product_price)
-            return jsonify({'message': new_product.__dict__ }), 201
+        validate = val.validate(data, post_product_schema)
+        if not validate:
+            return jsonify({'error': val.errors}), 400
 
-       
-        except:
-            return jsonify({"message":"Invalid input"}), 400
+        db.insert_new_product(product_name, product_price)
+        return jsonify({'message': new_product.__dict__ }), 201
+
+
 
 
     @app.route("/api/v1/products/", methods=["GET"], strict_slashes=False)
@@ -86,22 +88,26 @@ def start_app():
         products = db.get_all_products()
         return jsonify({"products":products})
 
-    @app.route("/api/products/<int:products_id>", methods=["PUT"], strict_slashes=False)
+    @app.route("/api/v1/products/<int:products_id>", methods=["PUT"], strict_slashes=False)
     def modify_product(products_id):
         data = request.get_json()
         product_name = data.get('product_name')
         product_price = data.get('product_price')
 
+        # validate = val.validate(data, modify_product_schema)
+        # if validate:
+        #     return jsonify({'error': val.errors}), 400
+
         modify = db.modify_product(products_id, product_name,product_price)
-        return jsonify({"product modified successfully": modify.__dict__})
+        return jsonify({"message":"product modified successfully"})
 
-    @app.route("/api/products/<int:products_id>", methods=["DELETE"], strict_slashes=False)
-    def delete_product():
+    @app.route("/api/v1/products/<int:products_id>", methods=["DELETE"], strict_slashes=False)
+    def delete_product(products_id):
 
-        product = db.get_product_by_id(int(products_id))
+        product = db.get_product_by_id(products_id)
         if not product:
             return jsonify({"response": "There is no such product with that Id"}), 404
-        db.delete_product(int(product_id))
+        db.delete_product(products_id)
         return jsonify({"message": "Product has been deleted successfully"})
 
         
@@ -109,7 +115,7 @@ def start_app():
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
     def get_single_product(product_id):
         single_product = db.get_one_product(product_id)
-        return jsonify({"single_product":single_product})
+        return jsonify({"single_product":""})
 
 
 
@@ -122,23 +128,9 @@ def start_app():
         sale_price = data.get('sale_price')
         new_sale = Sale(sale_quantity, sale_price)
 
-
-        # if sales_quantity == "":
-        #     return jsonify({"message":"Sale qunatity field can not have space"}), 400
-        # if sales_quantity == " ":
-        #     return jsonify({"message":"Sale field can not be passed empty string"}), 400
-        # if sales_price == "":
-        #     return jsonify({"message":"Sales price field cant be empty"}), 400
-        # if sales_price == " ":
-        #     return jsonify({"message":"Sales price field cant be passed an empty string"}), 400
-        # if not isinstance(sales_price, int):
-        #     return jsonify({"message":"sale price field can not be a string"}), 400
-        # if not isinstance(sales_quantity, str):
-        #     return jsonify({"message":"sale quantity field should be an string"}), 400
-        # for salesList in salesLists:
-        #         if sales_quantity in salesList.sales_quantity:
-        #             return jsonify({"response": "you have already registered this sale"}), 400
-                    
+        validate = val.validate(data, post_sale_schema)
+        if not validate:
+            return jsonify({'error': val.errors}), 400
 
         db.insert_new_sale(sale_quantity,sale_price)
         return jsonify({'message': new_sale.__dict__ }), 201
