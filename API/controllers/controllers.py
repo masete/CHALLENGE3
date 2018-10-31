@@ -115,7 +115,7 @@ def start_app():
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
     def get_single_product(product_id):
         single_product = db.get_one_product(product_id)
-        return jsonify({"single_product":""})
+        return jsonify({"message":""})
 
 
 
