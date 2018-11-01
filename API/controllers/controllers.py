@@ -86,7 +86,7 @@ def start_app():
     @app.route("/api/v1/products/", methods=["GET"], strict_slashes=False)
     def get_all_prducts():
         products = db.get_all_products()
-        return jsonify({"products":products})
+        return jsonify({"products":products.to_json()})
 
     @app.route("/api/v1/products/<int:products_id>", methods=["PUT"], strict_slashes=False)
     def modify_product(products_id):
@@ -115,7 +115,7 @@ def start_app():
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
     def get_single_product(product_id):
         single_product = db.get_one_product(product_id)
-        return jsonify({"message":""})
+        return jsonify({"message":single_product.to_json()})
 
 
 
@@ -139,7 +139,7 @@ def start_app():
     @app.route("/api/v1/sales/", methods=["GET"], strict_slashes=False)
     def get_all_sales():
         sales = db.get_all_sales()
-        return jsonify({"sales":sales})
+        return jsonify({"sales": sales}), 200
 
     @app.route("/api/v1/sales/<int:sale_id>", methods=['GET'], strict_slashes=False)
     def get_single_sale(sale_id):

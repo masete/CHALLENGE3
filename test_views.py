@@ -76,12 +76,12 @@ class TestEndpoints(unittest.TestCase):
 
     def test_post_a_sale_passing(self):
         """
-            Method for tesing the post function which posts a adds a
+            tests for posting a sale
         """
         result = self.client.post('/api/v1/sales/',
                                     content_type="application/json",
                                     json=dict(sale_quantity=45,
-                                                         sale_price=12345678))
+                                            sale_price=12345678))
         respond = json.loads(result.data)
         self.assertEqual(12345678, respond['message']['sale_price'])
         self.assertIsInstance(respond, dict)
@@ -108,6 +108,17 @@ class TestEndpoints(unittest.TestCase):
                                                          product_price=12345678))
         respond = json.loads(result.data)
         self.assertIn('product modified successfully', respond['message'])
+        self.assertIsInstance(respond, dict)
+
+    def test_single_sale(self):
+        """
+        get one sale route    
+        """
+        result = self.client.get('/api/v1/sales/1')
+        result2 = self.client.get('/api/v1/sales/q')
+        respond = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result2.status_code, 404)
         self.assertIsInstance(respond, dict)
     
 

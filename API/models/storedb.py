@@ -41,7 +41,7 @@ class Database:
                                             host='localhost',
                                                 port='5432')
         self.connection.autocommit = True
-        self.cursor = self.connection.cursor(cursor_factory = RealDictCursor)
+        self.cursor = self.connection.cursor()
         print(self.cursor)
         for command in self.commands:
             self.cursor.execute(command)
@@ -60,7 +60,7 @@ class Database:
 
     def get_product_by_name(self, product_name):
 
-        productbyname = "SELECT * FROM products WHERE product_name = {}".format(str(product_name))
+        productbyname = "SELECT * FROM products WHERE product_name = {}".format(product_name)
         self.cursor.execute(productbyname)
         return self.cursor.fetchone()
     
