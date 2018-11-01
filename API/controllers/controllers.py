@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from cerberus import Validator
 from API.models.storedb import Database
-from API.controllers.models import Product, Sale
+from API.models.models import Product, Sale
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -71,14 +71,14 @@ def start_app():
         data = request.get_json()
         product_name = data['product_name']
         product_price = data['product_price']
-        new_product = Product(product_name, product_price)
+        # new_product = Product(product_id=None, product_name, product_price)
 
         validate = val.validate(data, post_product_schema)
         if not validate:
             return jsonify({'error': val.errors}), 400
 
         db.insert_new_product(product_name, product_price)
-        return jsonify({'message': new_product.__dict__ }), 201
+        return jsonify({'message': "{} has been added".format(product_name)}), 201
 
 
 
@@ -86,7 +86,7 @@ def start_app():
     @app.route("/api/v1/products/", methods=["GET"], strict_slashes=False)
     def get_all_prducts():
         products = db.get_all_products()
-        return jsonify({"products":products.to_json()})
+        return jsonify({"products":products})
 
     @app.route("/api/v1/products/<int:products_id>", methods=["PUT"], strict_slashes=False)
     def modify_product(products_id):
@@ -94,12 +94,16 @@ def start_app():
         product_name = data.get('product_name')
         product_price = data.get('product_price')
 
-        # validate = val.validate(data, modify_product_schema)
-        # if validate:
-        #     return jsonify({'error': val.errors}), 400
+        validate = val.validate(data, modify_product_schema)
+        if not validate:
+            return jsonify({'error': val.errors}), 400
 
         modify = db.modify_product(products_id, product_name,product_price)
-        return jsonify({"message":"product modified successfully"})
+        product = db.get_one_product(products_id)
+        
+        return jsonify({"message":"product modified successfully",
+                        "product":product}
+                     )
 
     @app.route("/api/v1/products/<int:products_id>", methods=["DELETE"], strict_slashes=False)
     def delete_product(products_id):
@@ -115,7 +119,9 @@ def start_app():
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
     def get_single_product(product_id):
         single_product = db.get_one_product(product_id)
-        return jsonify({"message":single_product.to_json()})
+        if not single_product:
+            return jsonify({"error":"product does not exist"}),404
+        return jsonify({"single_product":single_product}),200
 
 
 
@@ -144,6 +150,9 @@ def start_app():
     @app.route("/api/v1/sales/<int:sale_id>", methods=['GET'], strict_slashes=False)
     def get_single_sale(sale_id):
         single_sale = db.get_one_sale(sale_id)
+        if not single_sale:
+            return jsonify({"error":"sale does not exist"}),404
         return jsonify({"single_sale":single_sale})
+
 
     return app

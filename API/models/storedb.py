@@ -3,6 +3,7 @@
 """
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from models import Product, Sale, products, sales
 
 class Database:
     """
@@ -81,16 +82,25 @@ class Database:
 
         get_product = "SELECT * FROM products"
         self.cursor.execute(get_product)
-        return self.cursor.fetchall()
-
-        get_product = product('{}','{}','{}')
+        results = self.cursor.fetchall()
+        if not results:
+            return False
+        for result in results:
+            product = Product(result[0],result[1],result[2]).to_json()
+            products.append(product)
+        return products
 
     
     def get_one_product(self, product_id):
 
         get_single_product = "SELECT * FROM products WHERE products_id = {}".format(product_id)
         self.cursor.execute(get_single_product)
-        return self.cursor.fetchone()
+        result = self.cursor.fetchone()
+        if not result:
+            return False
+        product = Product(result[0],result[1],result[2]).to_json()
+        products.append(product)
+        return products
 
     def modify_product(self,products_id,product_name,product_price):
         modify = "UPDATE products SET product_name = '{}', product_price = '{}' WHERE products_id = {}".format(product_name,product_price,products_id)
@@ -116,6 +126,12 @@ class Database:
 
         get_single_sale = "SELECT * FROM sales WHERE sale_id = {}".format(sale_id)
         self.cursor.execute(get_single_sale)
-        return self.cursor.fetchone()
+        result = self.cursor.fetchone()
+        if not result:
+            return False
+        sale = Sale(result[0], result[1],result[2]).format_to_json()
+        sales.append(sale)
+        return sales
+
 
    

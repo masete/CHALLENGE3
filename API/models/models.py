@@ -4,9 +4,10 @@ class User:
         self.username = username
         self.password = password
 
-        
+products = []       
 class Product:
     def __init__(self,product_id, product_name, product_price):
+        self.product_id = product_id
         self.product_name = product_name
         self.product_price = product_price
 
@@ -18,9 +19,10 @@ class Product:
          }
         return product
 
-
+sales = []
 class Sale:
     def __init__(self,sale_id, sale_quantity, sale_price):
+        self.sale_id = sale_id
         self.sale_quantity = sale_quantity
         self.sale_price = sale_price
 
@@ -30,7 +32,7 @@ class Sale:
         "sale_quantity" : self.sale_quantity,
         "sale_price" : self.sale_price
          }
-        return product
+        return sale
 
 
 

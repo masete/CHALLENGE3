@@ -11,3 +11,5 @@
 /API/validation_schema.pyc
 /__init__.pyc
 /API/controllers/__init__.pyc
+/API/controllers/__pycache__/
+/API/models/models.pyc
