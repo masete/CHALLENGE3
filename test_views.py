@@ -125,7 +125,7 @@ class TestEndpoints(unittest.TestCase):
         # self.assertEqual(result2.status_code, 404)
         self.assertIsInstance(respond, dict)
 
-    def test_single_sale_passing_failing(self):
+    def test_single_sale_passing(self):
         """
         get one sale route    
         """
