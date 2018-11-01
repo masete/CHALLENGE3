@@ -25,8 +25,9 @@ def start_app():
     def index():
         return jsonify({"message":"No products are available yet."})
         
-
+    
     @app.route("/api/auth/signup/", methods=["POST"], strict_slashes=False)
+    @jwt_required
     def signup():
 
         data = request.get_json()
@@ -64,6 +65,7 @@ def start_app():
 
     
     @app.route("/api/v1/products/", methods=["POST"], strict_slashes=False)
+    @jwt_required
     def post_a_product():
         """params: none, post a product by postman"""
         
@@ -84,11 +86,13 @@ def start_app():
 
 
     @app.route("/api/v1/products/", methods=["GET"], strict_slashes=False)
+    @jwt_required
     def get_all_prducts():
         products = db.get_all_products()
         return jsonify({"products":products})
 
     @app.route("/api/v1/products/<int:products_id>", methods=["PUT"], strict_slashes=False)
+    @jwt_required
     def modify_product(products_id):
         data = request.get_json()
         product_name = data.get('product_name')
@@ -106,6 +110,7 @@ def start_app():
                      )
 
     @app.route("/api/v1/products/<int:products_id>", methods=["DELETE"], strict_slashes=False)
+    @jwt_required
     def delete_product(products_id):
 
         product = db.get_product_by_id(products_id)
@@ -117,6 +122,7 @@ def start_app():
         
         
     @app.route("/api/v1/products/<int:product_id>", methods=["GET"], strict_slashes=False)
+    @jwt_required
     def get_single_product(product_id):
         single_product = db.get_one_product(product_id)
         if not single_product:
@@ -126,6 +132,7 @@ def start_app():
 
 
     @app.route("/api/v1/sales/", methods=["POST"], strict_slashes=False)
+    @jwt_required
     def post_a_sale():
         """for posting a sale, id auto increments"""
     
@@ -143,11 +150,13 @@ def start_app():
         
 
     @app.route("/api/v1/sales/", methods=["GET"], strict_slashes=False)
+    @jwt_required
     def get_all_sales():
         sales = db.get_all_sales()
         return jsonify({"sales": sales}), 200
 
     @app.route("/api/v1/sales/<int:sale_id>", methods=['GET'], strict_slashes=False)
+    @jwt_required
     def get_single_sale(sale_id):
         single_sale = db.get_one_sale(sale_id)
         if not single_sale:
